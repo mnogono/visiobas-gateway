@@ -17,7 +17,7 @@ class BearerAuth(AuthBase):
 
 
 class VisiobasClient:
-    def __init__(self, host, port):
+    def __init__(self, host, port, verify=True):
         self.host = host
         self.port = port
         self.token = None
@@ -25,9 +25,10 @@ class VisiobasClient:
         self.session = None
         self.logger = logging.getLogger(__name__)
         self.auth = None
+        self.verify = verify
 
     def get_addr(self):
-        return "http://{}:{}".format(self.host, self.port)
+        return "{}:{}".format(self.host, self.port)
 
     def get(self, url, headers=None, cookies=None) -> list or dict:
         return self.__extract_response_data(
@@ -45,13 +46,13 @@ class VisiobasClient:
         self.session = self.session if self.session is not None else requests.Session()
         return self.session
 
-    #TODO add request attempt if response is 401 - Autorization issue, then try perform rq_login and send request one more time
+    # TODO add request attempt if response is 401 - Autorization issue, then try perform rq_login and send request one more time
     def __request(self, method, url, data=None, headers=None, cookies=None):
         session = self.__get_session()
         if method == 'get':
-            response = session.get(url, headers=headers, cookies=cookies, auth=self.auth)
+            response = session.get(url, headers=headers, cookies=cookies, auth=self.auth, verify=self.verify)
         elif method == 'post':
-            response = session.post(url, data, headers=headers, auth=self.auth)
+            response = session.post(url, data, headers=headers, auth=self.auth, verify=self.verify)
         # elif method == 'delete':
         #     response = session.delete(url, headers=headers, auth=self.auth)
         else:
@@ -118,6 +119,17 @@ class VisiobasClient:
         # response = requests.get(url, headers=headers)
         # data = self.__extract_response_data(response)
         # return response
+
+    def rq_children(self, reference=""):
+        """
+        Request get children all certain object (reference)
+        :param reference: optional object reference string, by default output only root objects
+        :type reference: str
+        :return: list of children objects (by default root objects)
+        """
+        url = "{}/vbas/arm/get/{}".format(self.get_addr(), reference) if not reference \
+            else "{}/vbas/arm/get/objects".format(self.get_addr())
+        return self.get(url)
 
     def __set_credentials(self, token, user_id):
         self.token = token

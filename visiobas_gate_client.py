@@ -1,10 +1,10 @@
 from visiobas_client import VisiobasClient
-from object_type import ObjectType
+from visiobas_object_type import ObjectType
 
 
 class VisiobasGateClient(VisiobasClient):
-    def __init__(self, host, port):
-        VisiobasClient.__init__(self, host, port)
+    def __init__(self, host, port, verify):
+        VisiobasClient.__init__(self, host, port, verify=verify)
 
     def rq_get_device_objects(self, device_id, object_id=None, object_type=None):
         """
@@ -14,7 +14,7 @@ class VisiobasGateClient(VisiobasClient):
         :param object_id: Optional object identifier
         :type object_id: int
         :param object_type: Optional object type
-        :type object_type: object_type.ObjectType
+        :type object_type: visiobas_object_type.ObjectType
         """
         if object_id is not None and object_type is not None:
             url = "{}/get/{}/{}/{}".format(self.get_addr(), device_id, object_id, object_type.name)
@@ -40,7 +40,7 @@ class VisiobasGateClient(VisiobasClient):
         :param device_id: device id
         :type device_id: int
         :param object_id: one of supported object type
-        :type object_id: object_type.ObjectType
+        :type object_id: visiobas_object_type.ObjectType
         :return:
         """
         url = "{}/vbas/gate/get/{}/{}".format(self.get_addr(), device_id, object_id.id())
