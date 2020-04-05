@@ -5,6 +5,7 @@ from visiobas_gate_client import VisiobasGateClient
 from visiobas_object_type import ObjectType
 from visiobas_property import ObjectProperty
 import visiobas_logging
+from random import randrange
 
 if __name__ == 'main':
     print(certifi.where())
@@ -27,7 +28,7 @@ SERVER = {
     "remote": REMOTE
 }
 
-USING_SERVER = "remote"
+USING_SERVER = "local"
 
 HOST = SERVER[USING_SERVER]["host"]
 PORT = SERVER[USING_SERVER]["port"]
@@ -92,3 +93,18 @@ class TestVisiobasGateClient(unittest.TestCase):
     def test_rq_binary_input(self):
         objects = self.client.rq_device_object(200, ObjectType.BINARY_INPUT)
         self.assertTrue(type(objects) is list)
+
+    def test_rq_put(self):
+        device_id = 200
+        objects = self.client.rq_device_object(device_id, ObjectType.ANALOG_INPUT)
+        data = []
+        for o in objects:
+            d = {
+                ObjectProperty.OBJECT_IDENTIFIER.id(): o[ObjectProperty.OBJECT_IDENTIFIER.id()],
+                ObjectProperty.OBJECT_PROPERTY_REFERENCE.id(): o[ObjectProperty.OBJECT_PROPERTY_REFERENCE.id()],
+                ObjectProperty.DEVICE_ID.id(): device_id,
+                ObjectProperty.PRESENT_VALUE.id(): randrange(100),
+                ObjectProperty.OBJECT_TYPE.id(): o[ObjectProperty.OBJECT_TYPE.id()]
+            }
+            data.append(d)
+        self.client.rq_put(device_id, data)

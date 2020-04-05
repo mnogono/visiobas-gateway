@@ -1,5 +1,6 @@
 from visiobas_client import VisiobasClient
 from visiobas_object_type import ObjectType
+import json
 
 
 class VisiobasGateClient(VisiobasClient):
@@ -45,3 +46,16 @@ class VisiobasGateClient(VisiobasClient):
         """
         url = "{}/vbas/gate/get/{}/{}".format(self.get_addr(), device_id, object_id.id())
         return self.get(url)
+
+    def rq_put(self, device_id, data):
+        """
+        :param device_id: device identifier
+        :param data: list of object data to put on server
+        :return:
+        """
+        url = "{}/vbas/gate/put/{}".format(self.get_addr(), device_id)
+        headers = {
+            "Content-type": "application/json;charset=UTF-8"
+        }
+        js = json.dumps(data)
+        return self.post(url, js, headers=headers)
